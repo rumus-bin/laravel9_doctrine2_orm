@@ -1,0 +1,63 @@
+version: '3'
+services:
+    laravel-9_test:
+        image: tangramor/nginx-php8-fpm
+        container_name: laravel-9_test
+        environment:
+            TZ: 'Europe/London'
+            WEBROOT: '/var/www/html/public'
+            PHP_REDIS_SESSION_HOST: 'redis'
+            CREATE_LARAVEL_STORAGE: '1'
+            ENABLE_XDEBUG: '1'
+        ports:
+            - '${APP_PORT:-8086}:80'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        volumes:
+            - '../:/var/www/html'
+        networks:
+            - laravel9-test-net
+        depends_on:
+            - mysql_laravel-9_test
+            - redis_laravel-9_test
+    mysql_laravel-9_test:
+        image: 'mysql/mysql-server:8.0'
+        container_name: mysql_laravel-9_test
+        ports:
+            - '${FORWARD_DB_PORT:-3313}:3306'
+        env_file:
+            - "../.env"
+        environment:
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        volumes:
+            - 'mysql_laravel9_test:/var/lib/mysql'
+        networks:
+            - laravel9-test-net
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p123456"]
+            retries: 3
+            timeout: 5s
+    redis_laravel-9_test:
+        image: 'redis:alpine'
+        container_name: redis_laravel-9_test
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'redis_laravel9_test:/data'
+        networks:
+            - laravel9-test-net
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            retries: 3
+            timeout: 5s
+networks:
+    laravel9-test-net:
+        driver: bridge
+volumes:
+    mysql_laravel9_test:
+        driver: local
+    redis_laravel9_test:
+        driver: local
