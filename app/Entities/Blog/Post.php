@@ -90,4 +90,12 @@ class Post
 
         return $this;
     }
+
+    /**
+     * @return Collection
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
 }

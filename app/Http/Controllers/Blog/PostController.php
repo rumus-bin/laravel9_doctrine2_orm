@@ -54,7 +54,8 @@ class PostController extends \App\Http\Controllers\Controller
 
         $this->postRepository->store($post);
 
-        return redirect('posts.index')->with('success', 'Post ' . $post->getTitle() . ' created!');
+        return redirect(route('posts.index'))
+            ->with('success', 'Post ' . $post->getTitle() . ' created!');
     }
 
     public function update()

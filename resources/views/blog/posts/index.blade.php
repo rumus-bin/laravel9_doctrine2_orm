@@ -19,6 +19,23 @@
                     Author: {{$post->getAuthor()->getName()}}
                 </span>
             </div>
+            <div>
+                <h3>Leave comment</h3>
+                <form action="{{ route('post-comments.store') }}" method="post">
+                    <input type='hidden' name="post_id" value="{{ $post->getId() }}">
+                    <textarea name="content" id="" cols="30" rows="10"></textarea>
+                    <button type="submit">Comment</button>
+                </form>
+            </div>
+            <div>
+                <h3>Comments</h3>
+                @foreach($post->getComments() as $comment)
+                    <div>
+                        <span>{{$comment->getContent()}}</span>
+                        Commented by: <span>{{$comment->getAuthor()->getName()}}</span>
+                    </div>
+                @endforeach
+            </div>
         @endforeach
     </section>
 @endsection
