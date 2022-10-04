@@ -2,10 +2,13 @@
 
 namespace App\Entities;
 
+use App\Entities\Blog\Post;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Illuminate\Support\Carbon;
 
@@ -13,6 +16,8 @@ use Illuminate\Support\Carbon;
 #[Table(name: 'users')]
 class User
 {
+    public const TABLE_NAME = 'users';
+
     public function __construct(
         string $name,
         string $email,
@@ -46,6 +51,12 @@ class User
 
     #[Column(type: 'datetime')]
     protected Carbon $updatedAt;
+
+    #[OneToMany(mappedBy: 'author', targetEntity: Post::class, cascade: ['persist'])]
+    /**
+     * @var Collection<Post> $posts
+     */
+    protected Collection $posts;
 
     /**
      * @return int
@@ -173,5 +184,15 @@ class User
     public function setUpdatedAt(Carbon $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function addPost(Post $post): self
+    {
+        if (! $this->posts->contains($post)) {
+            $post->setAuthor($this);
+            $this->posts->add($post);
+        }
+
+        return $this;
     }
 }
